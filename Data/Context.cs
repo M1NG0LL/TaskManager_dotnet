@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManagerAPI.Models;
-
+using Task = TaskManagerAPI.Models.Task;
 namespace TaskManagerAPI.Data
 {
     public class Context : DbContext
@@ -13,6 +13,12 @@ namespace TaskManagerAPI.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Task>()
+                .HasOne(t => t.Account)
+                .WithMany()
+                .HasForeignKey(t => t.AccountId)
+                .OnDelete(DeleteBehavior.Cascade); 
+
             modelBuilder.Entity<Account>()
                 .HasIndex(a => a.Email)
                 .IsUnique();

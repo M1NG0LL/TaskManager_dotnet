@@ -5,6 +5,7 @@ namespace TaskManagerAPI.Models
 {
     public class Account
     {
+        [Key]
         public Guid Uuid { get; set; } = Guid.NewGuid();
         [Required]
         public string Name { get; set; }
