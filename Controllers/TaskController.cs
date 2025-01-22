@@ -17,8 +17,12 @@ namespace TaskManagerAPI.Controllers
 
         private Guid GetUserIdFromToken()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Guid.Parse(userId);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (Guid.TryParse(userIdClaim, out var userId))
+                return userId;
+            
+            throw new UnauthorizedAccessException("User ID not found in token.");
         }
 
         public TaskController(Context context)

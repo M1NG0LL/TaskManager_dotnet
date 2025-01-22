@@ -33,10 +33,13 @@ namespace TaskManagerAPI.Controllers
 
         private Guid GetUserIdFromToken()
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Guid.Parse(userId);
-        }
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            if (Guid.TryParse(userIdClaim, out var userId))
+                return userId;
+            
+            throw new UnauthorizedAccessException("User ID not found in token.");
+        }
         public AccountController(Context context, TokenHelper tokenHelper)
         {
             _context = context;
@@ -104,7 +107,7 @@ namespace TaskManagerAPI.Controllers
         */
         [HttpPut]
         [Authorize]
-        public async Task<IActionResult> UpdateAccount([FromBody] Account updatedAccount)
+        public async Task<IActionResult> UpdateAccount([FromBody] UpdateModel updatedAccount)
         {
             var userId = GetUserIdFromToken();
             var account = await _context.Accounts.FindAsync(userId);
@@ -112,8 +115,14 @@ namespace TaskManagerAPI.Controllers
             if (account == null)
                 return NotFound("Account not found.");
             
-            account.Name = updatedAccount.Name;
-            account.Email = updatedAccount.Email;
+            if (!string.IsNullOrWhiteSpace(updatedAccount.Name))
+                account.Name = updatedAccount.Name;
+            
+            if (!string.IsNullOrWhiteSpace(updatedAccount.Email))
+                account.Email = updatedAccount.Email;
+
+            if (!string.IsNullOrWhiteSpace(updatedAccount.Password))
+                account.Password = HashPassword(updatedAccount.Password);
 
             if (!string.IsNullOrWhiteSpace(updatedAccount.Password))
                 account.Password = HashPassword(updatedAccount.Password);

@@ -26,7 +26,7 @@ namespace TaskManagerAPI.Token
                 {
                     new Claim(ClaimTypes.NameIdentifier, userId.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddHours(24), 
+                Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
